@@ -1,17 +1,16 @@
-import pandas as pd
-from db import DemoDB, DB, list_profiles, remove_profile
 import unittest
+
+from db import DemoDB, list_profiles, remove_profile
 
 
 class PandaSQLTest(unittest.TestCase):
-
     def setUp(self):
         self.db = DemoDB()
 
     def test_query_rowsum(self):
         df = self.db.query("select * from Artist;")
         self.assertEqual(len(df), 275)
-    
+
     def test_query_groupby(self):
         q = "select AlbumId, sum(1) from Track group by 1"
         df = self.db.query(q)
@@ -26,13 +25,13 @@ class PandaSQLTest(unittest.TestCase):
     def test_add_profile(self):
         profiles = list_profiles()
         self.db.save_credentials(profile="test_profile")
-        self.assertEqual(len(profiles)+1, len(list_profiles()))
+        self.assertEqual(len(profiles) + 1, len(list_profiles()))
         remove_profile("test_profile")
-    
+
     def test_remove_profile(self):
         profiles = list_profiles()
         self.db.save_credentials(profile="test_profile")
-        self.assertEqual(len(profiles)+1, len(list_profiles()))
+        self.assertEqual(len(profiles) + 1, len(list_profiles()))
         remove_profile("test_profile")
 
     def test_list_profiles(self):
@@ -41,22 +40,22 @@ class PandaSQLTest(unittest.TestCase):
         remove_profile("test_profile")
 
     def test_table_head(self):
-        self.assertEqual(len(self.db.tables.Artist.head()), 6)
+        self.assertEqual(len(self.db.tables.Artist(limit=6)), 6)
 
     def test_table_all(self):
-        self.assertEqual(len(self.db.tables.Artist.all()), 275)
+        self.assertEqual(len(self.db.tables.Artist()), 275)
 
     def test_table_select(self):
-        df = self.db.tables.Artist.select("ArtistId", "Name")
+        df = self.db.tables.Artist("ArtistId", "Name")
         self.assertEqual(df.shape, (275, 2))
 
-    def test_table_sample(self):
-        df = self.db.tables.Artist.sample(n=10)
-        self.assertEqual(len(df), 10)
+    # def test_table_sample(self):
+    #     df = self.db.tables.Artist.sample(n=10)
+    #     self.assertEqual(len(df), 10)
 
-    def test_table_uniqe(self):
-	df = self.db.tables.Track.unique("GenreId", "MediaTypeId")
-	self.assertEqual(len(df), 38)
+    def test_table_unique(self):
+        df = self.db.tables.Track("GenreId", "MediaTypeId", unique=True)
+        self.assertEqual(len(df), 38)
 
     def test_column_head(self):
         col = self.db.tables.Track.TrackId.head()
@@ -71,8 +70,8 @@ class PandaSQLTest(unittest.TestCase):
         self.assertEqual(len(col), 10)
 
     def test_column_unique(self):
-	col = self.db.tables.Customer.Country.unique()
-	self.assertEqual(len(col), 24)
+        col = self.db.tables.Customer.Country.unique()
+        self.assertEqual(len(col), 24)
 
     def test_table_keys_per_column(self):
         short_db = DemoDB(keys_per_column=1)
@@ -92,14 +91,13 @@ class PandaSQLTest(unittest.TestCase):
 | UnitPrice    | NUMERIC(10,2) |                       |                                 |
 +--------------+---------------+-----------------------+---------------------------------+""".strip(),
                          '{0}'.format(short_db.tables.Track.__repr__()).strip())
-    
+
     def tearDown(self):
-	pass
+        pass
 
     def test_table_count_rows(self):
-        count = self.db.tables.Invoice.count
-        self.assertEqual(count), 412)
+        count = len(self.db.tables.Invoice)
+        self.assertEqual(count, 412)
 
-if __name__ == "__main__":
-    unittest.main()
-
+        if __name__ == "__main__":
+            unittest.main()

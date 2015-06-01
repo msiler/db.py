@@ -7,10 +7,10 @@ queries = {
     },
     "table": {
         "select": "select {columns} from {table};",
-        "head": "select * from {table} limit {n};",
-        "all": "select * from {table};",
-        "unique": "select distinct {columns} from {table};",
-        "sample": "select * from {table} order by rand() limit {n};"
+        "select_limit": "select {columns} from {table} limit {limit};",
+        "select_unique": "select distinct {columns} from {table};",
+        "select_limit_unique": "select distinct {columns} from {table} limit {limit};",
+        "count": "select count(*) from {table};"
     },
     "system": {
         "schema_no_system": """
